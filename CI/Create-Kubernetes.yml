@@ -1,0 +1,31 @@
+trigger: none
+
+variables:
+  buildConfiguration: 'Release'
+  webRepository: 'web'
+  tag: '$(Build.BuildId)'
+
+stages:
+- stage: 'Build'
+  displayName: 'Build and push'
+  jobs:  
+  - job: 'Build'
+    displayName: 'Build job'
+    pool:
+      vmImage: 'ubuntu-18.04'
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'VS Ent-MPN- ODIAZ(972e401d-226e-48c7-a463-6d562c39edda)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          aksVersion=$(az aks get-versions --query 'orchestrators[-1].orchestratorVersion' --output tsv)
+          az group create --name tailspin2 --location centralus
+          az aks create --name "$(aksName)" --resource-group tailspin2 --enable-addons monitoring --kubernetes-version $aksVersion  --generate-ssh-keys
+          clientId=$(az aks show --name $aksName --resource-group tailspin2 --query "servicePrincipalProfile.clientId" --output tsv)
+          acrId=$(az acr show --name $registryName --resource-group $rgName --query "id" --output tsv)
+          az role assignment create --assignee $clientId --role acrpull --scope $acrId
+#          az acr create --name "$(registryName)" --resource-group tailspin2 --sku Standard --admin-enabled true
+#          az appservice plan create --name "$(planNameLinux)" --resource-group tailspin2 --sku B1 --is-linux
+#          az webapp create --name "$(webNamelinux)" --resource-group tailspin2 --plan "$(planNameLinux)" --deployment-container-image-name $registryName.azurecr.io/web:latest
