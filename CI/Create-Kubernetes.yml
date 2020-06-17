@@ -20,7 +20,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          aksVersion=$(az aks get-versions --query 'orchestrators[-1].orchestratorVersion' --output tsv)
+          aksVersion=$(az aks get-versions --location centralus --query 'orchestrators[-1].orchestratorVersion' --output tsv)
           az group create --name tailspin2 --location centralus
           az aks create --name "$(aksName)" --resource-group tailspin2 --enable-addons monitoring --kubernetes-version $aksVersion  --generate-ssh-keys
           clientId=$(az aks show --name "$(aksName)" --resource-group tailspin2 --query "servicePrincipalProfile.clientId" --output tsv)
