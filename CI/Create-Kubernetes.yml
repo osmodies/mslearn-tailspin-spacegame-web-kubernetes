@@ -23,8 +23,8 @@ stages:
           aksVersion=$(az aks get-versions --query 'orchestrators[-1].orchestratorVersion' --output tsv)
           az group create --name tailspin2 --location centralus
           az aks create --name "$(aksName)" --resource-group tailspin2 --enable-addons monitoring --kubernetes-version $aksVersion  --generate-ssh-keys
-          clientId=$(az aks show --name $aksName --resource-group tailspin2 --query "servicePrincipalProfile.clientId" --output tsv)
-          acrId=$(az acr show --name $registryName --resource-group $rgName --query "id" --output tsv)
+          clientId=$(az aks show --name "$(aksName)" --resource-group tailspin2 --query "servicePrincipalProfile.clientId" --output tsv)
+          acrId=$(az acr show --name "$(registryName)" --resource-group tailspin2 --query "id" --output tsv)
           az role assignment create --assignee $clientId --role acrpull --scope $acrId
 #          az acr create --name "$(registryName)" --resource-group tailspin2 --sku Standard --admin-enabled true
 #          az appservice plan create --name "$(planNameLinux)" --resource-group tailspin2 --sku B1 --is-linux
